@@ -1,0 +1,10 @@
+{
+  "Id": "wotr-diceroller",
+  "DisplayName": "WotR-DiceRoller",
+  "Author": "JesusLives24",
+  "Version": "0.1.0",
+  "ManagerVersion": "0.23.0",
+  "EntryMethod": "DiceRoller.Main.Load",
+  "HomePage": "https://github.com/FakeFriend24/wotr-dice-roller",
+  "Repository": "https://raw.githubusercontent.com/FakeFriend24/wotr-dice-roller/master/Repository.json"
+}
