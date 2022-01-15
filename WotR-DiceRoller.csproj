@@ -11,7 +11,7 @@
   </ItemGroup>
   <PropertyGroup>
     <WrathInstallDir Condition=" '$(WrathInstallDir)' == '' ">C:\Program Files (x86)\Steam\steamapps\common\Pathfinder Second Adventure</WrathInstallDir>
-    <ModName Condition=" '$(ModName)' == 'WotR-DiceRoller' "></ModName>
+    <ModName Condition=" '$(ModName)' == '' ">WotR-DiceRoller</ModName>
   </PropertyGroup>  <PropertyGroup>
     <PostBuildEvent>
     xcopy /y "$(SolutionDir)\bin\$(Configuration)\$(TargetFramework)\$(ModName).dll" "$(WrathInstallDir)\Mods\$(ModName)\"
