@@ -28,7 +28,7 @@ namespace DiceRollerWotR.StatArrayCalculation
 
         public void RollDice()
         {
-            value = Main.randomGenerator.Next(minV, maxV);
+            value = Main.randomGenerator.Next(minV, maxV+1);
         }
 
         public int CompareTo(Dice other)
