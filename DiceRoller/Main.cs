@@ -184,7 +184,7 @@ namespace DiceRollerWotR
         } 
 
 
-        static void OnGUI(UnityModManager.ModEntry modEntry)
+        static void OnGUI(UnityModManager.ModEntry modEntry) 
         {
             var fixedWidth = new GUILayoutOption[1] { GUILayout.ExpandWidth(false) };
             // prevent Changing Values when in Character Stat Screen. 
