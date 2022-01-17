@@ -8,7 +8,7 @@ namespace DiceRollerWotR.StatArrayCalculation
     public class StatArray : IComparable<StatArray> 
     { 
          
-        public static Random generator = new Random();
+        public static Random generator = new Random(); 
 
         Dictionary<StatType, Stat> stats = new Dictionary<StatType, Stat>();
 

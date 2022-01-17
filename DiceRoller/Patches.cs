@@ -6,10 +6,13 @@ using Kingmaker;
 //using Kingmaker.Controllers.GlobalMap;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
+using Kingmaker.UI.MVVM._PCView.CharGen.Phases.AbilityScores;
+using Kingmaker.UI.MVVM._VM.CharGen.Phases.AbilityScores;
 //using Kingmaker.UI._ConsoleUI.Models;
 //using Kingmaker.UI.RestCamp;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Class.LevelUp;
+using Owlcat.Runtime.UI.MVVM;
 using System;
 using System.Collections.Generic;
 //using Kingmaker.UI._ConsoleUI.GroupChanger;
@@ -22,11 +25,13 @@ namespace DiceRollerWotR.Patch
         //public static Settings settings = Main.settings;
         public static LevelUpState levelUpStateData;
 
+
+
         [HarmonyPatch(typeof(LevelUpState), MethodType.Constructor)]
         [HarmonyPatch(new Type[] { typeof(UnitEntityData), typeof(LevelUpState.CharBuildMode), typeof(bool) })]
         public static class LevelUpState_Patch
         {
-            [HarmonyPriority(Priority.High)]
+            [HarmonyPriority(Priority.VeryLow)]
             public static void Postfix(UnitEntityData unit, LevelUpState.CharBuildMode mode, bool isPregen,  ref LevelUpState __instance)
             {
                 if (Main.isActive())
@@ -45,6 +50,26 @@ namespace DiceRollerWotR.Patch
                             levelUpStateData = __instance;
                         }
                     }
+                } else
+                {
+                    try
+                    {
+                        if(Main.isRespecActive)
+                        {
+                            foreach (StatType statType in StatTypeHelper.Attributes)
+                            { 
+                                int i = RolledArray.stats[statType];
+                                unit.Stats.GetStat(statType).BaseValue = i;
+                                 
+                            }
+                            levelUpStateData = __instance;
+                        }
+                    } catch (Exception e)
+                    {
+                        Log.Error(e);
+                    }
+
+
                 }
             }
         }
@@ -52,7 +77,8 @@ namespace DiceRollerWotR.Patch
         [HarmonyPatch(typeof(LevelUpState), nameof(StatsDistribution.IsComplete))]
         public static class LevelUpState_IsComplete_Patch
         {
-            public static void Postfix(ref LevelUpState __instance, ref bool __result)
+            [HarmonyPriority(Priority.VeryLow)]
+            public static void Postfix(LevelUpState __instance, ref bool __result)
             {
                 if(__result && __instance == levelUpStateData)
                 {
@@ -64,8 +90,8 @@ namespace DiceRollerWotR.Patch
         [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.Start))]
         public static class StatsDistribution_Start_Patch
         {
-            [HarmonyPriority(Priority.High)]
-            public static bool Prefix(StatsDistribution __instance, int pointCount)
+            [HarmonyPriority(Priority.VeryLow)]
+            public static void Postfix(StatsDistribution __instance, int pointCount)
             {
                 if (Main.isActive())
                 {
@@ -85,17 +111,30 @@ namespace DiceRollerWotR.Patch
                     }
 #endif
 
-                    return false;
                 }
-                else
-                    return true;
+                try
+                {
+                    if (Main.isRespecActive)
+                    {
+                        Traverse.Create(__instance).Property("Available").SetValue(true);
+                        Traverse.Create(__instance).Property("Points").SetValue(RolledArray.stats.GetStatsSum());
+                        Traverse.Create(__instance).Property("TotalPoints").SetValue(RolledArray.stats.GetStatsSum());
+                        Traverse.Create(__instance).Property("StatValues").SetValue(RolledArray.stats.GetStats());
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
+
             }
         }
+
         [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.CanRemove))]
         public static class StatsDistribution_CanRemove_Patch
         {
-            [HarmonyPriority(Priority.High)]
-            public static bool Prefix(ref bool __result, StatType attribute, StatsDistribution __instance)
+            [HarmonyPriority(Priority.VeryLow)]
+            public static void Postfix(ref bool __result, StatType attribute, StatsDistribution __instance)
             {
                 if (Main.isActive())
                 {
@@ -103,27 +142,22 @@ namespace DiceRollerWotR.Patch
                     int i = StatTypeHelper.Attributes.TryGetIndex(attribute);
                     if (i >= 0 && DiceRollerStatsDistribution.stats.)
                     */
-                    __result = true;
-                    return false;
+                    __result = false;
+                    
                 }
-                else
-                    return true;
             }
         }
 
         [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.CanAdd))]
         public static class StatsDistribution_CanAdd_Patch
-        {
-            [HarmonyPriority(Priority.High)]
-            public static bool Prefix(ref bool __result, StatType attribute, StatsDistribution __instance)
+        { 
+            [HarmonyPriority(Priority.VeryLow)]
+            public static void Postfix(ref bool __result, StatType attribute, StatsDistribution __instance)
             {
                 if (Main.isActive())
                 {
                     __result = true;
-                    return false;
                 }
-                else
-                    return true;
             }
         }
     }
@@ -131,17 +165,13 @@ namespace DiceRollerWotR.Patch
     [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.GetAddCost))]
     public static class StatsDistribution_GetAddCost_Patch
     {
-        [HarmonyPriority(Priority.High)]
-        public static bool Prefix(StatsDistribution __instance, StatType attribute, int __result)
+        [HarmonyPriority(Priority.VeryLow)]
+        public static void Postfix(StatsDistribution __instance, StatType attribute,ref int __result)
         {
             if (Main.isActive())
             {
                 __result = 0;
-                return false;
-
             }
-            else
-                return true;
         }
     }
 
@@ -149,17 +179,14 @@ namespace DiceRollerWotR.Patch
     [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.GetRemoveCost))]
     public static class StatsDistribution_GetRemoveCost_Patch
     {
-        [HarmonyPriority(Priority.High)]
-        public static bool Prefix(StatsDistribution __instance, StatType attribute, int __result)
+        [HarmonyPriority(Priority.VeryLow)]
+        public static void Postfix(StatsDistribution __instance, StatType attribute, ref int __result)
         {
             if (Main.isActive())
             {
                 __result = 0;
-                return false;
 
             }
-            else
-                return true;
         }
     }
 
@@ -230,19 +257,15 @@ namespace DiceRollerWotR.Patch
     [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.IsComplete))]
     public static class StatsDistribution_IsComplete_Patch
     {
-        [HarmonyPriority(Priority.High)]
-        public static bool Prefix(StatsDistribution __instance, ref bool __result)
+        [HarmonyPriority(Priority.VeryLow)]
+        public static void Postfix(StatsDistribution __instance, ref bool __result)
         {
             if (Main.isActive())
-            {
+            { 
                 
                     __result = true;
-                
-                return false;
 
             }
-            else
-                return true;
         }
     }
 

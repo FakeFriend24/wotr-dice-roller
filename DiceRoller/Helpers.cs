@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -26,6 +27,7 @@ using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using UnityModManagerNet;
 
 namespace DiceRollerWotR
 {
@@ -50,6 +52,37 @@ namespace DiceRollerWotR
 // - less `Helpers.` etc.
 internal static class Helpers
     {
+        public static Type GetClassTypeWithField(string className, string fieldName)
+        {
+            Type getType = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                        from type in assembly.GetTypes()
+                        where type.Name == className && type.GetFields().Any(m => m.Name == fieldName)
+                        select type).FirstOrDefault();
+
+            return getType;
+        }
+
+        public static Type SearchAssemblyFor(String className, String relPathFromWrath) 
+        {
+
+            var dir = UnityModManager.modsPath+@Path.DirectorySeparatorChar+@relPathFromWrath;
+#if DEBUG
+            Log.Write("TestOutput: Target-Assembly at " + @dir);
+#endif
+            return Assembly.LoadFrom(dir).GetType(className);
+        }
+
+        public static T GetValueOfField<T>(Type classType, String fieldName)
+        {
+            foreach (var p in classType.GetFields())
+            {
+                if(p.Name.Contains(fieldName))
+                {
+                    return (T) p.GetValue(null);
+                }
+            }
+            return default(T);
+        }
 
         private static PropertyInfo GetPropertyInfo(Type type, string propertyName)
         {

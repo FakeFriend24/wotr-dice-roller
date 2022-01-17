@@ -109,7 +109,7 @@ namespace DiceRollerWotR
                 modEntry.OnSaveGUI = OnSaveGUI;
                 settings = UnityModManager.ModSettings.Load<Settings>(modEntry);
                 harmonyInstance = new Harmony(modEntry.Info.Id);
-                harmonyInstance.PatchAll();
+                harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
                 StartMod();
 #if DEBUG
             }
@@ -119,8 +119,8 @@ namespace DiceRollerWotR
             }
 #endif
 
-                return true;
-            }
+            return true;
+        }
 
         static void StartMod()
         {
@@ -132,12 +132,45 @@ namespace DiceRollerWotR
         public static bool isActive()
         {
             if (enabled && RolledArray.stats != null)
-            
+
                 return true;
             else
                 return false;
-        } 
-         
+        }
+
+        private static bool searchedRespecMain = false;
+        private static Type respecMain;
+
+        public static bool isRespecActive
+        {
+            get
+            {
+                if (!searchedRespecMain)
+                {
+#if DEBUG
+                    Log.Write("TestOutput: "+typeof(Main).FullName+" : " +typeof(Main).Name);
+#endif
+                    respecMain = UnityModManager.FindMod("RespecWrath")?.Assembly.GetType("RespecModBarley.Main"); // Helpers.SearchAssemblyFor("RespecModBarley.Main", @"Download_This_RespecWrath\RespecWrath.dll");
+                    searchedRespecMain = true;
+#if DEBUG
+                    Log.Write("Searched For RespecWrath.");
+                    if (respecMain != null)
+                        Log.Write("Found.");
+                    else
+                        Log.Write("Not Found.");
+#endif
+                }
+                if (searchedRespecMain && respecMain != null) 
+                {
+#if DEBUG
+                    Log.Write("Get current IsRespecValue.");
+#endif
+                    return Helpers.GetValueOfField<bool>(respecMain, "IsRespec");
+                }
+                return false;
+            }
+        }
+    
         static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
         {
             enabled = value;
