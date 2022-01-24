@@ -127,6 +127,7 @@ namespace DiceRollerWotR
             RolledArray.stats = new StatArrayCalculation.StatArray(StatArrayCalculation.Stat.StatArrayType.ThreeDice);
             Log.Write($"{RolledArray.stats != null}");
             // SafeLoad(StateManager.Load, "State Manager");
+
         }
 
         public static bool isActive()

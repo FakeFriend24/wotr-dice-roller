@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using HarmonyLib;
+using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -20,6 +21,8 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Localization;
+using Kingmaker.UI.MVVM._PCView.CharGen;
+using Kingmaker.UI.MVVM._PCView.ServiceWindows;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Buffs;
@@ -27,6 +30,7 @@ using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using UnityEngine;
 using UnityModManagerNet;
 
 namespace DiceRollerWotR
@@ -52,6 +56,33 @@ namespace DiceRollerWotR
 // - less `Helpers.` etc.
 internal static class Helpers
     {
+        public static Transform StaticRoot
+        {
+            get
+            {
+                if (Game.Instance.UI.Canvas != null)
+                    return Game.Instance.UI.Canvas.transform;
+                else
+                    return Game.Instance.UI.Common.transform;
+            }
+        }
+
+        // Token: 0x17000024 RID: 36
+        // (get) Token: 0x060000DA RID: 218 RVA: 0x00008A87 File Offset: 0x00006C87
+        public static CharGenPCView CurrentCharGenPCView
+        {
+            get
+            {
+                CharGenPCView view = StaticRoot.GetComponentInChildren<CharGenPCView>();
+                if ( view != null)
+                {
+                    Log.Write("Found CurrentChargenPCView");
+                }
+                return view;
+            }
+        }
+
+
         public static Type GetClassTypeWithField(string className, string fieldName)
         {
             Type getType = (from assembly in AppDomain.CurrentDomain.GetAssemblies()

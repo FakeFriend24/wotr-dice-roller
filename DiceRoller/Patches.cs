@@ -25,6 +25,8 @@ namespace DiceRollerWotR.Patch
         //public static Settings settings = Main.settings;
         public static LevelUpState levelUpStateData;
 
+        //public static Settings settings = Main.settings;
+        public static CharGenAbilityScoresDetailedPCView detailed;
 
 
         [HarmonyPatch(typeof(LevelUpState), MethodType.Constructor)]
@@ -32,45 +34,19 @@ namespace DiceRollerWotR.Patch
         public static class LevelUpState_Patch
         {
             [HarmonyPriority(Priority.VeryLow)]
-            public static void Postfix(UnitEntityData unit, LevelUpState.CharBuildMode mode, bool isPregen,  ref LevelUpState __instance)
+            public static void Postfix(UnitEntityData unit, LevelUpState.CharBuildMode mode, bool isPregen, ref LevelUpState __instance)
             {
-                if (Main.isActive())
+                if ((Main.isActive() || Main.isRespecActive) && __instance.IsFirstCharacterLevel && !__instance.IsPregen && !unit.IsPet)
                 {
-                    if (__instance.IsFirstCharacterLevel)
-                    {
-                        if (!__instance.IsPregen)
-                        {
-                            
-                            foreach (StatType statType in StatTypeHelper.Attributes)
-                            {
-                                int i = RolledArray.stats[statType];
-                                unit.Stats.GetStat(statType).BaseValue = i ;
-                                
-                            }
-                            levelUpStateData = __instance;
-                        }
-                    }
-                } else
-                {
-                    try
-                    {
-                        if(Main.isRespecActive)
-                        {
-                            foreach (StatType statType in StatTypeHelper.Attributes)
-                            { 
-                                int i = RolledArray.stats[statType];
-                                unit.Stats.GetStat(statType).BaseValue = i;
-                                 
-                            }
-                            levelUpStateData = __instance;
-                        }
-                    } catch (Exception e)
-                    {
-                        Log.Error(e);
-                    }
 
+                    foreach (StatType statType in StatTypeHelper.Attributes) 
+                    {
+                        int i = RolledArray.stats[statType];
+                        unit.Stats.GetStat(statType).BaseValue = i;
 
+                    }
                 }
+                levelUpStateData = __instance;
             }
         }
 
@@ -93,40 +69,29 @@ namespace DiceRollerWotR.Patch
             [HarmonyPriority(Priority.VeryLow)]
             public static void Postfix(StatsDistribution __instance, int pointCount)
             {
-                if (Main.isActive())
+                if (Main.isActive() || Main.isRespecActive)
                 {
 #if DEBUG
                     try
                     {
 #endif
                         Traverse.Create(__instance).Property("Available").SetValue(true);
-                        Traverse.Create(__instance).Property("Points").SetValue(RolledArray.stats.GetStatsSum());
-                        Traverse.Create(__instance).Property("TotalPoints").SetValue( RolledArray.stats.GetStatsSum());
-                        Traverse.Create(__instance).Property("StatValues").SetValue( RolledArray.stats.GetStats());
+                        Traverse.Create(__instance).Property("Points").SetValue(RolledArray.stats.GetPointBuy());
+                        Traverse.Create(__instance).Property("TotalPoints").SetValue( RolledArray.stats.GetPointBuy());
+                        foreach (StatType key in StatTypeHelper.Attributes)
+                        {
+                            __instance.StatValues[key] = RolledArray.stats[key];
+                        }
+
 #if DEBUG
                     }
                     catch (Exception e)
                     {
-                        Log.Write(e.ToString());
+                        Log.Error(e);
                     }
 #endif
 
                 }
-                try
-                {
-                    if (Main.isRespecActive)
-                    {
-                        Traverse.Create(__instance).Property("Available").SetValue(true);
-                        Traverse.Create(__instance).Property("Points").SetValue(RolledArray.stats.GetStatsSum());
-                        Traverse.Create(__instance).Property("TotalPoints").SetValue(RolledArray.stats.GetStatsSum());
-                        Traverse.Create(__instance).Property("StatValues").SetValue(RolledArray.stats.GetStats());
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e);
-                }
-
             }
         }
 
@@ -200,11 +165,18 @@ namespace DiceRollerWotR.Patch
             {
                     StatType next = Helpers.GetNextAttribute(attribute).Value;
                     Log.Write($"Moving Down: {attribute} and {next} needs to be exchanged");
-                    unit.Stats.Switch(attribute, next);
-                    foreach (StatType statType in StatTypeHelper.Attributes)
-                    {
-                        __instance.StatValues[statType] = unit.Stats.GetStat(statType).BaseValue;
-                    }
+                    
+                    Dictionary<StatType, int> statValues = __instance.StatValues;
+                    int num = statValues[attribute];
+                    int num2 = statValues[next];
+                    statValues[attribute] = num2;
+                    statValues[next] = num;
+                    ModifiableValue stat = unit.Stats.GetStat(attribute);
+                    ModifiableValue stat2 = unit.Stats.GetStat(next);
+                    num = stat.BaseValue;
+                    num2 = stat2.BaseValue;
+                    stat2.BaseValue = num;
+                    stat.BaseValue = num2;
 
                 //DiceRollerStatsDistribution.stats.Switch(attribute, next);
                 //Traverse.Create(__instance).Property("StatValues").SetValue(RolledArray.stats.GetStats());

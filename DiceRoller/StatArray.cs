@@ -17,18 +17,33 @@ namespace DiceRollerWotR.StatArrayCalculation
             for(int i = 0; i < StatTypeHelper.Attributes.Length; i++)
             {
                 stats.Add(StatTypeHelper.Attributes[i], new Stat(type));
+#if DEBUG
+                Log.Write("A " + stats[StatTypeHelper.Attributes[i]].Value + " costs " + stats[StatTypeHelper.Attributes[i]].PointBuyValue + " Points.");
+#endif
             }
+        }
+
+        public int GetPointBuy()
+        {
+            int sum = 0;
+            foreach(KeyValuePair<StatType, Stat> keyValuePair in stats)
+            {
+                sum += keyValuePair.Value.PointBuyValue;
+            }
+            return sum;
         }
 
         public int GetStatsSum()
         {
             int sum = 0;
-            foreach(KeyValuePair<StatType, Stat> keyValuePair in stats)
+            foreach (KeyValuePair<StatType, Stat> keyValuePair in stats)
             {
                 sum += keyValuePair.Value.Value;
             }
             return sum;
         }
+
+
 
         public int this[StatType statType]
         {
@@ -87,7 +102,7 @@ namespace DiceRollerWotR.StatArrayCalculation
 
             // The temperature comparison depends on the comparison of
             // the underlying Double values.
-            return GetStatsSum().CompareTo(other.GetStatsSum());
+            return GetPointBuy().CompareTo(other.GetPointBuy());
         }
 
         // Define the is greater than operator.

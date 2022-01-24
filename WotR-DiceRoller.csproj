@@ -31,6 +31,9 @@
     <Reference Include="UnityEngine">
       <HintPath>$(WrathInstallDir)\Wrath_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(WrathInstallDir)\Wrath_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
     <Reference Include="Owlcat.Runtime.Core">
       <HintPath>$(WrathInstallDir)\Wrath_Data\Managed\Owlcat.Runtime.Core.dll</HintPath>
     </Reference>

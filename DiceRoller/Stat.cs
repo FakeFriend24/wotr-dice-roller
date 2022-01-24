@@ -36,6 +36,32 @@ namespace DiceRollerWotR.StatArrayCalculation
                 return v;
             }
         }
+        public int PointBuyValue
+        {
+            get
+            {
+                int v = Value;
+                int s = 0;
+                if (v > 10)
+                {
+                    v -= 10;
+                    while (v != 0)
+                    {
+                        s += Math.Max(1,(v - (v % 2)) / 2);
+                        v--;
+                    }
+                }
+                else if(v < 10)
+                {
+                    v -= 10;
+                    while(v!= 0) { 
+                        s += ((v) + ((v) % 2)) / 2;
+                        v++;
+                    } 
+                }
+                return s;
+            }
+        }
 
         public int this[int index]
         {
