@@ -23,6 +23,9 @@ namespace DiceRollerWotR.StatArrayCalculation
             }
         }
 
+
+
+
         public int GetPointBuy()
         {
             int sum = 0;

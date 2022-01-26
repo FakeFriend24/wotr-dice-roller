@@ -54,33 +54,38 @@ namespace DiceRollerWotR
 // Benefits:
 // - less `static` noise.
 // - less `Helpers.` etc.
+internal static class UIHelpers
+    {
+        
+    }
+
 internal static class Helpers
     {
-        public static Transform StaticRoot
+        public static T GetComponentInDescendant<T>(this Component obj) where T : MonoBehaviour
         {
-            get
-            {
-                if (Game.Instance.UI.Canvas != null)
-                    return Game.Instance.UI.Canvas.transform;
-                else
-                    return Game.Instance.UI.Common.transform;
-            }
+            return obj.gameObject.GetComponentInDescendant<T>();
         }
 
-        // Token: 0x17000024 RID: 36
-        // (get) Token: 0x060000DA RID: 218 RVA: 0x00008A87 File Offset: 0x00006C87
-        public static CharGenPCView CurrentCharGenPCView
+            public static T GetComponentInDescendant<T>(this GameObject obj) where T : MonoBehaviour
         {
-            get
+            T res = obj.GetComponent<T>();
+            if(res != null)
             {
-                CharGenPCView view = StaticRoot.GetComponentInChildren<CharGenPCView>();
-                if ( view != null)
-                {
-                    Log.Write("Found CurrentChargenPCView");
-                }
-                return view;
+                return res;
             }
+            for(int i = 0; i < obj.transform.childCount; i++)
+            {
+                res = obj.transform.GetChild(i).gameObject.GetComponentInDescendant<T>();
+                if(res != null)
+                {
+                    break;
+                }
+            }
+            return res; 
         }
+
+
+
 
 
         public static Type GetClassTypeWithField(string className, string fieldName)

@@ -20,54 +20,50 @@ using UnityModManager = UnityModManagerNet.UnityModManager;
 
 namespace DiceRollerWotR.Patch
 {
-    internal static class NewChar
+
+
+    [HarmonyPatch(typeof(LevelUpState))]
+    public static class LevelUpState_Patches
     {
-        //public static Settings settings = Main.settings;
-        public static LevelUpState levelUpStateData;
 
-        //public static Settings settings = Main.settings;
-        public static CharGenAbilityScoresDetailedPCView detailed;
-
-
-        [HarmonyPatch(typeof(LevelUpState), MethodType.Constructor)]
-        [HarmonyPatch(new Type[] { typeof(UnitEntityData), typeof(LevelUpState.CharBuildMode), typeof(bool) })]
-        public static class LevelUpState_Patch
+        [HarmonyPostfix,
+            HarmonyPatch(MethodType.Constructor),
+            HarmonyPatch(new Type[] { typeof(UnitEntityData), typeof(LevelUpState.CharBuildMode), typeof(bool) })]
+        [HarmonyPriority(Priority.VeryLow)]
+        public static void _ctor(UnitEntityData unit, LevelUpState.CharBuildMode mode, bool isPregen, ref LevelUpState __instance)
         {
-            [HarmonyPriority(Priority.VeryLow)]
-            public static void Postfix(UnitEntityData unit, LevelUpState.CharBuildMode mode, bool isPregen, ref LevelUpState __instance)
+            if ((Main.isActive() || Main.isRespecActive) && __instance.IsFirstCharacterLevel && !__instance.IsPregen && !unit.IsPet)
             {
-                if ((Main.isActive() || Main.isRespecActive) && __instance.IsFirstCharacterLevel && !__instance.IsPregen && !unit.IsPet)
+
+                foreach (StatType statType in StatTypeHelper.Attributes)
                 {
+                    int i = RolledArray.Stats[statType];
+                    unit.Stats.GetStat(statType).BaseValue = i;
 
-                    foreach (StatType statType in StatTypeHelper.Attributes) 
-                    {
-                        int i = RolledArray.stats[statType];
-                        unit.Stats.GetStat(statType).BaseValue = i;
-
-                    }
                 }
-                levelUpStateData = __instance;
+            }
+            Accessor.levelUpStateData = __instance;
+        }
+
+    }
+
+        [HarmonyPatch(typeof(StatsDistribution))]
+        public static class StatsDistribution_Patches
+        {
+
+        [HarmonyPostfix, HarmonyPatch(nameof(StatsDistribution.IsComplete))]
+        [HarmonyPriority(Priority.VeryLow)]
+        public static void IsComplete(LevelUpState __instance, ref bool __result)
+        {
+            if (__result && __instance == Accessor.levelUpStateData)
+            {
+                Accessor.levelUpStateData = null;
             }
         }
 
-        [HarmonyPatch(typeof(LevelUpState), nameof(StatsDistribution.IsComplete))]
-        public static class LevelUpState_IsComplete_Patch
-        {
-            [HarmonyPriority(Priority.VeryLow)]
-            public static void Postfix(LevelUpState __instance, ref bool __result)
-            {
-                if(__result && __instance == levelUpStateData)
-                {
-                    levelUpStateData = null;
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.Start))]
-        public static class StatsDistribution_Start_Patch
-        {
-            [HarmonyPriority(Priority.VeryLow)]
-            public static void Postfix(StatsDistribution __instance, int pointCount)
+        [HarmonyPostfix, HarmonyPatch(nameof(StatsDistribution.Start))]
+        [HarmonyPriority(Priority.VeryLow)]
+            public static void Start(StatsDistribution __instance, int pointCount)
             {
                 if (Main.isActive() || Main.isRespecActive)
                 {
@@ -76,13 +72,13 @@ namespace DiceRollerWotR.Patch
                     {
 #endif
                         Traverse.Create(__instance).Property("Available").SetValue(true);
-                        Traverse.Create(__instance).Property("Points").SetValue(RolledArray.stats.GetPointBuy());
-                        Traverse.Create(__instance).Property("TotalPoints").SetValue( RolledArray.stats.GetPointBuy());
+                        Traverse.Create(__instance).Property("Points").SetValue(RolledArray.GetPointBuy());
+                        Traverse.Create(__instance).Property("TotalPoints").SetValue( RolledArray.GetPointBuy());
                         foreach (StatType key in StatTypeHelper.Attributes)
                         {
-                            __instance.StatValues[key] = RolledArray.stats[key];
+                            __instance.StatValues[key] = RolledArray.Stats[key];
                         }
-
+                        
 #if DEBUG
                     }
                     catch (Exception e)
@@ -93,59 +89,38 @@ namespace DiceRollerWotR.Patch
 
                 }
             }
-        }
 
-        [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.CanRemove))]
-        public static class StatsDistribution_CanRemove_Patch
-        {
-            [HarmonyPriority(Priority.VeryLow)]
-            public static void Postfix(ref bool __result, StatType attribute, StatsDistribution __instance)
+        [HarmonyPostfix, HarmonyPatch(nameof(StatsDistribution.CanRemove))]
+        [HarmonyPriority(Priority.VeryLow)]
+            public static void CanRemove(ref bool __result, StatType attribute, StatsDistribution __instance)
             {
                 if (Main.isActive())
                 {
-                    /*
-                    int i = StatTypeHelper.Attributes.TryGetIndex(attribute);
-                    if (i >= 0 && DiceRollerStatsDistribution.stats.)
-                    */
                     __result = false;
                     
                 }
             }
-        }
-
-        [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.CanAdd))]
-        public static class StatsDistribution_CanAdd_Patch
-        { 
-            [HarmonyPriority(Priority.VeryLow)]
-            public static void Postfix(ref bool __result, StatType attribute, StatsDistribution __instance)
+        [HarmonyPostfix, HarmonyPatch(nameof(StatsDistribution.CanAdd))]
+        [HarmonyPriority(Priority.VeryLow)]
+            public static void CanAdd(ref bool __result, StatType attribute, StatsDistribution __instance)
             {
                 if (Main.isActive())
                 {
                     __result = true;
                 }
             }
-        }
-    }
-
-    [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.GetAddCost))]
-    public static class StatsDistribution_GetAddCost_Patch
-    {
+        [HarmonyPostfix, HarmonyPatch(nameof(StatsDistribution.GetAddCost))]
         [HarmonyPriority(Priority.VeryLow)]
-        public static void Postfix(StatsDistribution __instance, StatType attribute,ref int __result)
+        public static void GetAddCost(StatsDistribution __instance, StatType attribute,ref int __result)
         {
             if (Main.isActive())
             {
                 __result = 0;
             }
         }
-    }
-
-
-    [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.GetRemoveCost))]
-    public static class StatsDistribution_GetRemoveCost_Patch
-    {
+        [HarmonyPostfix, HarmonyPatch(nameof(StatsDistribution.GetRemoveCost))]
         [HarmonyPriority(Priority.VeryLow)]
-        public static void Postfix(StatsDistribution __instance, StatType attribute, ref int __result)
+        public static void GetRemoveCost(StatsDistribution __instance, StatType attribute, ref int __result)
         {
             if (Main.isActive())
             {
@@ -153,19 +128,17 @@ namespace DiceRollerWotR.Patch
 
             }
         }
-    }
 
-    [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.Add))]
-    public static class StatsDistribution_Add_Patch
-    {
+        [HarmonyPrefix, HarmonyPatch(nameof(StatsDistribution.Add))]
         [HarmonyPriority(Priority.High)]
-        public static bool Prefix(StatsDistribution __instance, UnitDescriptor unit, StatType attribute)
+        public static bool Add(StatsDistribution __instance, UnitDescriptor unit, StatType attribute)
         {
             if (Main.isActive())
             {
                     StatType next = Helpers.GetNextAttribute(attribute).Value;
-                    Log.Write($"Moving Down: {attribute} and {next} needs to be exchanged");
-                    
+#if DEBUG
+                Log.Write($"Moving Down: {attribute} and {next} needs to be exchanged");
+#endif                    
                     Dictionary<StatType, int> statValues = __instance.StatValues;
                     int num = statValues[attribute];
                     int num2 = statValues[next];
@@ -186,13 +159,9 @@ namespace DiceRollerWotR.Patch
             else 
                 return true;
         }
-    }
-
-    [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.Remove))]
-    public static class StatsDistribution_Remove_Patch
-    {
+        [HarmonyPrefix, HarmonyPatch(nameof(StatsDistribution.Remove))]
         [HarmonyPriority(Priority.High)]
-        public static bool Prefix(StatsDistribution __instance, UnitDescriptor unit, StatType attribute)
+        public static bool Remove(StatsDistribution __instance, UnitDescriptor unit, StatType attribute)
         {
             if (Main.isActive())
             {
@@ -208,8 +177,10 @@ namespace DiceRollerWotR.Patch
 
                 } */
                     StatType prev = Helpers.GetPreviousAttribute(attribute).Value;
-                    Log.Write($"Moving Up: {attribute} and {prev} needs to be exchanged");
+#if DEBUG
+                Log.Write($"Moving Up: {attribute} and {prev} needs to be exchanged");
                     unit.Stats.Switch(attribute, prev);
+#endif
                     foreach (StatType statType in StatTypeHelper.Attributes)
                     {
                         __instance.StatValues[statType] = unit.Stats.GetStat(statType).BaseValue;
@@ -224,11 +195,7 @@ namespace DiceRollerWotR.Patch
             else
                 return true;
         }
-    }
-
-    [HarmonyPatch(typeof(StatsDistribution), nameof(StatsDistribution.IsComplete))]
-    public static class StatsDistribution_IsComplete_Patch
-    {
+        [HarmonyPostfix, HarmonyPatch(nameof(StatsDistribution.IsComplete))]
         [HarmonyPriority(Priority.VeryLow)]
         public static void Postfix(StatsDistribution __instance, ref bool __result)
         {

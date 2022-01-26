@@ -21,40 +21,29 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityModManagerNet;
 using Owlcat.Runtime.Core;
-using Owlcat.Runtime.Core.Logging;
+using Owlcat.Runtime.Core.Logging; 
 using Kingmaker.UI;
 using Kingmaker.UI.MVVM._PCView.ServiceWindows.LocalMap;
 using Kingmaker.UI.MVVM._VM.ServiceWindows.LocalMap;
 using HarmonyLib;
 using Kingmaker.EntitySystem.Stats;
-using static DiceRollerWotR.StatArrayCalculation.Stat;
+using DiceRollerWotR.StatArrayCalculation;
 
 namespace DiceRollerWotR
 {
+#if DEBUG
+    [EnableReloading]
+#endif
+
     public class Main
     {
-        /*
-        [HarmonyPatch(typeof(LocalMapPCView))]
-        [HarmonyPatch("OnPointerClick")]
-        static class LocalMapPCView_OnPointerClick_Patch
-        {
-
-            private static bool Prefix(LocalMapPCView __instance, PointerEventData eventData)
-        {
-
-        }
-    }
-*/
 
         public static bool enabled;
-
-        public static StatArrayType arrayType = StatArrayType.ThreeDice;
 
         public static System.Random randomGenerator;
 
         public static UnityModManager.ModEntry.ModLogger logger;
 
-        static Settings settings;
 
         static Harmony harmonyInstance;
 
@@ -107,7 +96,13 @@ namespace DiceRollerWotR
                 modEntry.OnToggle = OnToggle;
                 modEntry.OnGUI = OnGUI;
                 modEntry.OnSaveGUI = OnSaveGUI;
-                settings = UnityModManager.ModSettings.Load<Settings>(modEntry);
+#if DEBUG
+                modEntry.OnUnload = Unload;
+#endif
+                Accessor.Settings = UnityModManager.ModSettings.Load<Settings>(modEntry);
+                if (Accessor.Settings == null)
+                    Accessor.Settings = new Settings();
+
                 harmonyInstance = new Harmony(modEntry.Info.Id);
                 harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
                 StartMod();
@@ -122,17 +117,29 @@ namespace DiceRollerWotR
             return true;
         }
 
+#if DEBUG
+        static bool Unload(UnityModManager.ModEntry modEntry)
+        {
+            harmonyInstance.UnpatchAll();
+
+            return true;
+        }
+#endif
+
+
         static void StartMod()
         {
-            RolledArray.stats = new StatArrayCalculation.StatArray(StatArrayCalculation.Stat.StatArrayType.ThreeDice);
-            Log.Write($"{RolledArray.stats != null}");
+            RolledArray.Reroll(Accessor.Settings.ArrayType);
+#if DEBUG
+            Log.Write($"{RolledArray.Stats != null}");
+#endif
             // SafeLoad(StateManager.Load, "State Manager");
 
         }
 
         public static bool isActive()
         {
-            if (enabled && RolledArray.stats != null)
+            if (enabled && RolledArray.Stats != null)
 
                 return true;
             else
@@ -175,6 +182,9 @@ namespace DiceRollerWotR
         static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
         {
             enabled = value;
+            if(enabled)
+                Accessor.Settings = UnityModManager.ModSettings.Load<Settings>(modEntry);
+
             /*
             if(!enabled && DiceRollerWotR.Patch.NewChar.levelUpStateData != null)
             {
@@ -182,33 +192,24 @@ namespace DiceRollerWotR
             }
             */
             return true;
-        } 
-
-
-        static void OnGUI(UnityModManager.ModEntry modEntry) 
-        {
-            var fixedWidth = new GUILayoutOption[1] { GUILayout.ExpandWidth(false) };
-            // prevent Changing Values when in Character Stat Screen. 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("<b><color=cyan>Current Rolled Stats: </color></b>", fixedWidth);
-            foreach(StatType statType in  StatTypeHelper.Attributes)
-            {
-                GUILayout.Label("<b>"+statType.ToString()+"</b>: "+RolledArray.stats[statType], fixedWidth);
-
-            }
-            GUILayout.EndHorizontal();
-            GUILayout.BeginHorizontal();
-            arrayType = (StatArrayType) GUILayout.SelectionGrid((int)arrayType,Enum.GetNames(typeof(StatArrayCalculation.Stat.StatArrayType)),1, fixedWidth);
-            if (GUILayout.Button("Reroll", fixedWidth))
-            {
-                RolledArray.Reroll(arrayType);
-            }
-            GUILayout.EndHorizontal();
         }
 
+
+        static void OnGUI(UnityModManager.ModEntry modEntry)
+        {
+            if (enabled)
+            {
+                try { 
+                    Accessor.Settings.DrawGUI(modEntry);
+                } catch(Exception e)
+                {
+                    Log.Error(e);
+                }
+            }
+        }
         static void OnSaveGUI(UnityModManager.ModEntry modEntry)
         {
-            settings.Save(modEntry);
+            Accessor.Settings.Save(modEntry);
             //To-Do: Update Character Stat Change Screen on GUISave
         }
 
@@ -216,13 +217,5 @@ namespace DiceRollerWotR
     } 
 
 
-    public class Settings : UnityModManager.ModSettings
-    {
-        public bool SaveAfterEveryChange = false;
 
-        public override void Save(UnityModManager.ModEntry modEntry)
-        {
-            UnityModManager.ModSettings.Save<Settings>(this, modEntry);
-        }
-    }
 }

@@ -14,15 +14,17 @@ namespace DiceRollerWotR.StatArrayCalculation
             TwoPlusSix,
             OneDTwenty,
             FiveDFour,
+            NoTimeToWaste,
         }
 
         StatArrayType type;
-        public Stat(StatArrayType statType) {
+        public Stat(StatArrayType statType)
+        {
             type = statType;
             InitDice(statType);
         }
 
-        Dice[] dice;
+        public Dice[] dice;
 
         public int Value
         {
@@ -118,6 +120,10 @@ namespace DiceRollerWotR.StatArrayCalculation
                     break;
                 case StatArrayType.FiveDFour:
                     l.AddRange(RollDice(5, 1, 4));
+                    l.Sort();
+                    break;
+                case StatArrayType.NoTimeToWaste:
+                    l.AddRange(RollDice(1, 18, 20));
                     l.Sort();
                     break;
 
