@@ -12,21 +12,20 @@ in UMM-Menu:
 2. reroll shown Stats with the reroll button, current ways to roll are on the left.
 
 in Attribute Allocator Window:
-1. The Left Button switches current stat with next stat in List.
-2. Points shows the total sum of all stats.
+1. The right button switches current stat with next stat in List.
+2. Points shows the total point buy value of all stats.
+3. The buttons below are self-explanatory.
 
 Known-Issues:
 ----
-1. If you reroll while in Character Generator, you need to click an arrow to update Stat Visuals.
+1. None
 
 To-Do:
 ----
-1. Update Allocator UI with an additional reroll Button.
-2. Make it so you can disable Mod and the game switches to Point buy with rolled Stats as base.
-3. Change the way Dice Rolls work to a parsing type.
-4. Update Allocator UI with a field to choose the current way to roll.
-5. Support switching upwards and downwards.
-6. ... ?
+1. Make it so you can disable Mod and the game switches to point buy with rolled Stats as base.
+2. Change the way Dice Rolls work to a parsing type.
+3. Support switching upwards and downwards.
+4. ... ?
 
 Installation
 ----
