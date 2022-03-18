@@ -18,7 +18,8 @@ in Attribute Allocator Window:
 
 Known-Issues:
 ----
-1. None
+1. If the mod is active, stats of newly recruited companions are overwritten with rolled stats. Fix: disable mod after character creation through the ingame UMM menu.
+2. None.
 
 To-Do:
 ----
