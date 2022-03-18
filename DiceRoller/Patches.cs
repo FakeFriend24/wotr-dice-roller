@@ -42,7 +42,7 @@ namespace DiceRollerWotR.Patch
 
                 }
             }
-            Accessor.levelUpStateData = __instance;
+            Accessor.levelUpStateData = __instance; 
         }
 
     }

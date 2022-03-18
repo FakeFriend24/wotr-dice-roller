@@ -15,7 +15,6 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
-using Kingmaker.Blueprints.Validation;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -223,13 +222,13 @@ internal static class Helpers
             {
                 return localized;
             }
-            var strings = LocalizationManager.CurrentPack.Strings;
-            String oldValue;
-            if (strings.TryGetValue(key, out oldValue) && value != oldValue)
+            
+            String oldValue = LocalizationManager.CurrentPack.GetText(key);
+            if (value != oldValue)
             {
                 Log.Write($"Info: duplicate localized string `{key}`, different text.");
             }
-            strings[key] = value;
+            
             localized = new LocalizedString();
             localizedString_m_Key(localized, key);
             textToLocalizedString[value] = localized;
@@ -690,7 +689,7 @@ internal static class Helpers
             if (str.Length > 4096) Flush();
         }
 
-        static ValidationContext validation = new ValidationContext();
+       
 
 
 
