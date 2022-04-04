@@ -32,8 +32,8 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.VeryLow)]
         public static void _ctor(UnitEntityData unit, LevelUpState.CharBuildMode mode, bool isPregen, ref LevelUpState __instance)
         {
-            if ((Main.isActive() || Main.isRespecActive) && __instance.IsFirstCharacterLevel && !__instance.IsPregen && !unit.IsPet)
-            {
+            if ((Main.isActive() || Main.isRespecActive) && __instance.IsFirstCharacterLevel && !__instance.IsPregen && !unit.IsPet && !__instance.IsLoreCompanion)
+            { 
 
                 foreach (StatType statType in StatTypeHelper.Attributes)
                 {

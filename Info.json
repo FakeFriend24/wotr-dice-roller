@@ -2,7 +2,7 @@
   "Id": "DicerollerWotR",
   "DisplayName": "WotR-DiceRoller",
   "Author": "JesusLives24",
-  "Version": "0.9.1",
+  "Version": "0.9.1a",
   "ManagerVersion": "0.23.0",
   "EntryMethod": "DiceRollerWotR.Main.Load",
   "HomePage": "https://github.com/FakeFriend24/wotr-dice-roller",
