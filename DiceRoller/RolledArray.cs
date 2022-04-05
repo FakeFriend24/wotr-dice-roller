@@ -1,4 +1,3 @@
-using DiceRollerWotR.StatArrayCalculation;
 using HarmonyLib;
 using Kingmaker;
 using Kingmaker.EntitySystem.Stats;
@@ -13,14 +12,56 @@ namespace DiceRollerWotR
 {
     public class RolledArray
     {
+        public enum StatArrayType
+        {
+            ThreeDice,
+            FourMinusLowest,
+            FourRerollOnesMinusLowest,
+            FourMinusHighest,
+            AllFeaturesExample,
+            ThreeDiceRerollFourOrHigher,
+            UseBrackets,
+            TwoPlusSix,
+            OneDTwenty,
+            FiveDFour,
+            NoTimeToWaste,
+        }
+
+
         public static Dictionary<StatType, int> Stats;
          
-        public static void Reroll(Stat.StatArrayType statArrayType)
+        /*
+        public static void Reroll(StatArrayType statArrayType)
         {
             StatArray newStats = new StatArray(statArrayType);
             Stats = newStats.GetStats();
             UpdateStatDistribution();
             //UpdateAllocatorVM();
+        }
+        */
+
+        public static void Reroll(string regex)
+        {
+            
+            Stats = new Dictionary<StatType, int>();
+            for (int i = 0; i < StatTypeHelper.Attributes.Length; i++)
+            {
+
+                try
+                {
+                    Stats.Add(StatTypeHelper.Attributes[i], Parser.Parse(regex));
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                    Stats.Add(StatTypeHelper.Attributes[i], 10);
+
+                }
+                //                Log.Write("A " + stats[StatTypeHelper.Attributes[i]].Value + " costs " + stats[StatTypeHelper.Attributes[i]].PointBuyValue + " Points.");
+
+
+            }
+            UpdateStatDistribution();
         }
 
 

@@ -26,7 +26,6 @@ using Kingmaker.UI.MVVM._PCView.ServiceWindows.LocalMap;
 using Kingmaker.UI.MVVM._VM.ServiceWindows.LocalMap;
 using HarmonyLib;
 using Kingmaker.EntitySystem.Stats;
-using DiceRollerWotR.StatArrayCalculation;
 
 namespace DiceRollerWotR
 {
@@ -128,7 +127,7 @@ namespace DiceRollerWotR
 
         static void StartMod()
         {
-            RolledArray.Reroll(Accessor.Settings.ArrayType);
+            RolledArray.Reroll(Accessor.Settings.DiceExpression);
 #if DEBUG
             Log.Write($"{RolledArray.Stats != null}");
 #endif

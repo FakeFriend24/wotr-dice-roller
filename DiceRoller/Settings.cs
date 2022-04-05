@@ -1,5 +1,4 @@
-﻿using DiceRollerWotR.StatArrayCalculation;
-using HarmonyLib;
+﻿using HarmonyLib;
 using Kingmaker.EntitySystem.Stats;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityModManagerNet;
+using static DiceRollerWotR.RolledArray;
 
 namespace DiceRollerWotR
 {
@@ -17,7 +17,7 @@ namespace DiceRollerWotR
 
         public bool KeepValuesForPointBuy = false;
 
-        public Stat.StatArrayType ArrayType = Stat.StatArrayType.ThreeDice;
+        public string DiceExpression = @"4d[6]kh3";
 
         public int[] SavedArray;
          
@@ -35,23 +35,31 @@ namespace DiceRollerWotR
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("<b><color=cyan>Current Rolled Stats: </color></b>", fixedWidth);
-            for(int i = 0; i < StatTypeHelper.Attributes.Length; i++)
+#if DEBUG
+            Log.Write("GUI: Works till here");
+#endif
+
+            for (int i = 0; i < StatTypeHelper.Attributes.Length; i++)
             {
                 GUILayout.Label("<b> #" + i + "</b>: " + RolledArray.Stats[StatTypeHelper.Attributes[i]], fixedWidth);
 
             }
+#if DEBUG
+            Log.Write("GUI: Does this Work too?");
+#endif
+
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Reroll", fixedWidth))
             {
-                RolledArray.Reroll(Accessor.Settings.ArrayType);
+                RolledArray.Reroll(DiceExpression);
             }
             if (GUILayout.Button("Save", fixedWidth))
             {
                 SaveCurrentArray();
             }
             GUILayout.BeginVertical();
-            Accessor.Settings.ArrayType = (Stat.StatArrayType)GUILayout.SelectionGrid((int)Accessor.Settings.ArrayType, Enum.GetNames(typeof(Stat.StatArrayType)), 1, fixedWidth);
+            DiceExpression = GUILayout.TextField(DiceExpression,fixedWidth);
             GUILayout.EndVertical();
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();

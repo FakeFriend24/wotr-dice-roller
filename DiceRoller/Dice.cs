@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DiceRollerWotR.StatArrayCalculation
+namespace DiceRollerWotR
 {
     public class Dice : IComparable<Dice> 
     {

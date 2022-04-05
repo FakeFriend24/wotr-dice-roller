@@ -102,22 +102,26 @@ namespace DiceRollerWotR.Patch
             }
         [HarmonyPostfix, HarmonyPatch(nameof(StatsDistribution.CanAdd))]
         [HarmonyPriority(Priority.VeryLow)]
-            public static void CanAdd(ref bool __result, StatType attribute, StatsDistribution __instance)
+        public static void CanAdd(ref bool __result, StatType attribute, StatsDistribution __instance)
+        {
+            if (Main.isActive())
             {
-                if (Main.isActive())
-                {
-                    __result = true;
-                }
+                __result = true;
             }
-        [HarmonyPostfix, HarmonyPatch(nameof(StatsDistribution.GetAddCost))]
-        [HarmonyPriority(Priority.VeryLow)]
-        public static void GetAddCost(StatsDistribution __instance, StatType attribute,ref int __result)
+        }
+
+        [HarmonyPrefix, HarmonyPatch(nameof(StatsDistribution.GetAddCost))]
+        [HarmonyPriority(Priority.VeryHigh)]
+        public static bool GetAddCost(StatsDistribution __instance, StatType attribute,ref int __result)
         {
             if (Main.isActive())
             {
                 __result = 0;
+                return false;
             }
+            return true;
         }
+
         [HarmonyPostfix, HarmonyPatch(nameof(StatsDistribution.GetRemoveCost))]
         [HarmonyPriority(Priority.VeryLow)]
         public static void GetRemoveCost(StatsDistribution __instance, StatType attribute, ref int __result)
