@@ -38,11 +38,11 @@ Some examples would be:
 - `(1d[4]+1)d[8]` Translates to: roll 1 dice from 1 to 4, add 1 and use this as the amount of dice from 1 to 8.
 - `18` Translates to: use 18.
 
-There are more examples and standard stat array types to be found in the mod button itself, just try them out.
+There are more examples and standard stat array types to be found in the mod itself, just try them out.
 
 Known-Issues:
 ----
-1. If the mod is active, stats of newly recruited companions are overwritten with rolled stats. Fix: disable mod after character creation through the ingame UMM menu.
+1. if Intelligence is changed below 3, the background-option will disappear, if you change it to a higher value, it will reappear, but without selection. Fix: just reselect it.
 2. None.
 
 To-Do:
