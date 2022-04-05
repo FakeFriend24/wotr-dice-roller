@@ -29,7 +29,7 @@ namespace DiceRollerWotR
         public GameObject DropdownIconObject;
         public TextMeshProUGUI PlaceholderText;
 
-        public SearchBar(Transform parent, string placeholder, string name = "DiceRoller_SearchBar", IEnumerable<string> dropDownOptions = null, int startIndex = 1, UnityAction<int> onSelection = null)
+        public SearchBar(Transform parent, string placeholder, string startValue = "", string name = "DiceRoller_SearchBar", IEnumerable<string> dropDownOptions = null, int startIndex = 1, UnityAction<int> onSelection = null, UnityAction<string> onValueChanged = null)
         {
 
             if (Accessor.FeatureSearchPrefab == null)
@@ -57,6 +57,7 @@ namespace DiceRollerWotR
             InputField = RootGameObject.transform.Find("FieldPlace/SearchField/SearchBackImage/InputField").GetComponent<TMP_InputField>();
 
             InputField.onValueChanged.AddListener(delegate (string _) { OnInputFieldEdit(); });
+            InputField.onValueChanged.AddListener(onValueChanged);
             InputField.onEndEdit.AddListener(delegate (string _) { OnInputFieldEditEnd(); });
             InputButton.OnLeftClick.AddListener(delegate { OnInputClick(); });
             if (dropDownOptions != null)
@@ -67,7 +68,8 @@ namespace DiceRollerWotR
 
             GameObject.Destroy(RootGameObject.GetComponent<CharGenFeatureSearchPCView>()); // controller from where we stole the search bar
             InputField.transform.Find("Text Area/Placeholder").GetComponent<TextMeshProUGUI>().SetText(placeholder);
-            InputField.interactable = false;
+            PlaceholderText.text = Accessor.Settings.DiceExpression;
+            InputField.interactable = true;
             if (dropDownOptions != null)
             {
                 Dropdown.ClearOptions();
@@ -87,6 +89,12 @@ namespace DiceRollerWotR
             }
             RootGameObject.AddComponent<LayoutElement>().flexibleWidth = 3;
 
+            try { 
+            InputField.text = startValue;
+            } catch(Exception e)
+            {
+                Log.Error(e);
+            }
         }
 
         public void FocusSearchBar()
@@ -97,6 +105,8 @@ namespace DiceRollerWotR
         public void UpdatePlaceholder()
         {
             PlaceholderText.text = string.IsNullOrEmpty(InputField.text) ? InputField.transform.Find("Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text : InputField.text;
+            
+
         }
 
         private void OnDropdownButton()

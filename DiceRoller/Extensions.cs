@@ -3,6 +3,7 @@ using Kingmaker.EntitySystem.Stats;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace DiceRollerWotR
 {
@@ -35,6 +36,16 @@ namespace DiceRollerWotR
         {
             Array.Sort(array);
             return array;
+        }
+
+        public static bool IsCompleteMatch( this string s, string regex)
+        {
+            Match m = Regex.Match(s, regex);
+            if(m.Success && m.Length == s.Length)
+            {
+                return true;
+            }
+            return false;
         }
 
         public static T[] Switch<T>(this T[] array, int oldIndex, int newIndex)

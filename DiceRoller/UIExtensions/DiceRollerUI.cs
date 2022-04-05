@@ -1,5 +1,4 @@
-﻿using DiceRollerWotR.StatArrayCalculation;
-using HarmonyLib;
+﻿using HarmonyLib;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.UI.MVVM._PCView.CharGen.Phases.AbilityScores;
 using Kingmaker.UI.MVVM._VM.CharGen.Phases.AbilityScores;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static DiceRollerWotR.StatArrayCalculation.Stat;
+using static DiceRollerWotR.RolledArray;
 
 namespace DiceRollerWotR
 {
@@ -42,17 +41,24 @@ namespace DiceRollerWotR
             LoadButton = UIElements.InitializeButton(RootGameObject.GetComponent<RectTransform>(), 
                                                      "Load", Accessor.Settings.LoadCurrentArray, "DiceRoller_LoadButton");
 
-            DropdownButton = new SearchBar(RootGameObject.transform, "Coming soon", "DiceRoller_RerollTypeSelector", 
-                                           Enum.GetNames(typeof(Stat.StatArrayType)), (int) Accessor.Settings.ArrayType,
+            DropdownButton = new SearchBar(RootGameObject.transform, "Type Expression ..." , Accessor.Settings.DiceExpression, "DiceRoller_RerollTypeSelector", 
+                                           Enum.GetNames(typeof(StatArrayType)), 0,
                                            delegate (int i) {
-                                               Accessor.Settings.ArrayType = (StatArrayType) Enum.GetValues(typeof(StatArrayType)).GetValue(i);
-                                               Log.Write("Diceroll mode changed.");
-                                           });
+#if DEBUG
+                                               Log.Write("Selected is: " + i);
+                                               Log.Write("This converts to: " + (StatArrayType)i);
+#endif
+
+                                               Parser.ChangeExpressionTo((StatArrayType)i);
+                                               DropdownButton.InputField.text = Accessor.Settings.DiceExpression;
+                                               // Accessor.Settings.ArrayType = (StatArrayType) Enum.GetValues(typeof(StatArrayType)).GetValue(i);
+                                               // Log.Write("Diceroll mode changed.");
+                                           }, delegate(string s) { Accessor.Settings.DiceExpression = DropdownButton.InputField.text; });
 
             RerollButton = UIElements.InitializeButton(RootGameObject.GetComponent<RectTransform>(), 
                                                        "Reroll", delegate ()
                                                                  {
-                                                                     RolledArray.Reroll(Accessor.Settings.ArrayType);
+                                                                     RolledArray.Reroll(Accessor.Settings.DiceExpression);
 #if DEBUG
                                                                      Log.Write("Reroll Button works!");
 #endif
