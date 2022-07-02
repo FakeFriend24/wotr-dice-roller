@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
 using Kingmaker.EntitySystem.Stats;
+using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Class.LevelUp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +22,18 @@ namespace DiceRollerWotR
         public string DiceExpression = @"4d[6]kh3";
 
         public int[] SavedArray;
-         
+
+        public bool overwritePresetStats = false;
+
+        public bool overwriteLoreCompanionStats = false;
+
+        public bool overwriteMercenaryStats = false;
+
+        public bool overwritePetStats = false;
+
+        public bool overwriteEnemyStats = false;
+
+        
         public override void Save(UnityModManager.ModEntry modEntry)
         {
             UnityModManager.ModSettings.Save<Settings>(this, modEntry);
@@ -30,8 +43,14 @@ namespace DiceRollerWotR
         {
             var fixedWidth = new GUILayoutOption[1] { GUILayout.ExpandWidth(false) };
             // prevent Changing Values when in Character Stat Screen.
+            GUILayout.Label("Reroll ...",fixedWidth);
             GUILayout.BeginHorizontal();
-//            Accessor.Settings.KeepValuesForPointBuy = GUILayout.Toggle(Accessor.Settings.KeepValuesForPointBuy, GUIContent.none, fixedWidth);
+            //Accessor.Settings.KeepValuesForPointBuy = GUILayout.Toggle(Accessor.Settings.KeepValuesForPointBuy, GUIContent.none, fixedWidth);
+            //Accessor.Settings.overwritePresetStats = GUILayout.Toggle(Accessor.Settings.overwritePresetStats, "Presets?", fixedWidth);
+            Accessor.Settings.overwriteLoreCompanionStats = GUILayout.Toggle(Accessor.Settings.overwriteLoreCompanionStats, "Lore Companion?", fixedWidth);
+            Accessor.Settings.overwriteMercenaryStats = GUILayout.Toggle(Accessor.Settings.overwriteMercenaryStats, "Mercenaries?", fixedWidth);
+            Accessor.Settings.overwritePetStats = GUILayout.Toggle(Accessor.Settings.overwritePetStats, "Pets?", fixedWidth);
+            Accessor.Settings.overwriteEnemyStats = GUILayout.Toggle(Accessor.Settings.overwriteEnemyStats, "Enemies?", fixedWidth);
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("<b><color=cyan>Current Rolled Stats: </color></b>", fixedWidth);
@@ -95,5 +114,29 @@ namespace DiceRollerWotR
             }
 
         }
+
+        public bool IsPresetAllowed(bool input)
+        {
+            return input && overwriteLoreCompanionStats;
+        }
+
+        public bool IsLoreCompanionAllowed(bool input)
+        {
+            return input && overwritePresetStats;
+        }
+
+        public bool IsCustomCompanionAllowed(bool input)
+        {
+            return input && overwriteMercenaryStats;
+        }
+        public bool IsPetCompanionAllowed(bool input)
+        {
+            return input && overwritePetStats;
+        }
+        public bool IsEnemyAllowed(bool input)
+        {
+            return input && overwriteEnemyStats;
+        }
+
     }
 }

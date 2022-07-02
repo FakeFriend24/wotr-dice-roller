@@ -32,8 +32,13 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.VeryLow)]
         public static void _ctor(UnitEntityData unit, LevelUpState.CharBuildMode mode, bool isPregen, ref LevelUpState __instance)
         {
-            if ((Main.isActive() || Main.isRespecActive) && __instance.IsFirstCharacterLevel && !__instance.IsPregen && !unit.IsPet && !__instance.IsLoreCompanion)
-            { 
+            if (Main.CheckForAllowance(__instance, mode))
+
+            {
+                __instance.SetPregenMode(false);
+
+                int pointCount = RolledArray.GetPointBuy();
+                __instance.StatsDistribution.Start(pointCount);
 
                 foreach (StatType statType in StatTypeHelper.Attributes)
                 {
@@ -41,8 +46,9 @@ namespace DiceRollerWotR.Patch
                     unit.Stats.GetStat(statType).BaseValue = i;
 
                 }
+
+                Accessor.levelUpStateData = __instance;
             }
-            Accessor.levelUpStateData = __instance; 
         }
 
     }
@@ -65,7 +71,7 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.VeryLow)]
             public static void Start(StatsDistribution __instance, int pointCount)
             {
-                if (Main.isActive() || Main.isRespecActive)
+                if (Main.isActive() && Accessor.levelUpStateData != null && __instance == Accessor.levelUpStateData.StatsDistribution )
                 {
 #if DEBUG
                     try
@@ -94,8 +100,8 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.VeryLow)]
             public static void CanRemove(ref bool __result, StatType attribute, StatsDistribution __instance)
             {
-                if (Main.isActive())
-                {
+                if (Main.isActive() && Accessor.levelUpStateData != null && __instance == Accessor.levelUpStateData.StatsDistribution)
+            {
                     __result = false;
                     
                 }
@@ -104,7 +110,7 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.VeryLow)]
         public static void CanAdd(ref bool __result, StatType attribute, StatsDistribution __instance)
         {
-            if (Main.isActive())
+            if (Main.isActive() && Accessor.levelUpStateData != null && __instance == Accessor.levelUpStateData.StatsDistribution)
             {
                 __result = true;
             }
@@ -114,7 +120,7 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.VeryHigh)]
         public static bool GetAddCost(StatsDistribution __instance, StatType attribute,ref int __result)
         {
-            if (Main.isActive())
+            if (Main.isActive() && Accessor.levelUpStateData != null && __instance == Accessor.levelUpStateData.StatsDistribution)
             {
                 __result = 0;
                 return false;
@@ -126,7 +132,7 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.VeryLow)]
         public static void GetRemoveCost(StatsDistribution __instance, StatType attribute, ref int __result)
         {
-            if (Main.isActive())
+            if (Main.isActive() && Accessor.levelUpStateData != null && __instance == Accessor.levelUpStateData.StatsDistribution)
             {
                 __result = 0;
 
@@ -137,7 +143,7 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.High)]
         public static bool Add(StatsDistribution __instance, UnitDescriptor unit, StatType attribute)
         {
-            if (Main.isActive())
+            if (Main.isActive() && Accessor.levelUpStateData != null && __instance == Accessor.levelUpStateData.StatsDistribution)
             {
                     StatType next = Helpers.GetNextAttribute(attribute).Value;
 #if DEBUG
@@ -167,7 +173,7 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.High)]
         public static bool Remove(StatsDistribution __instance, UnitDescriptor unit, StatType attribute)
         {
-            if (Main.isActive())
+            if (Main.isActive() && Accessor.levelUpStateData != null && Accessor.levelUpStateData != null)
             {
                 /*
                 if (__instance.CanAdd(attribute))
@@ -203,7 +209,7 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.VeryLow)]
         public static void Postfix(StatsDistribution __instance, ref bool __result)
         {
-            if (Main.isActive())
+            if (Main.isActive() && Accessor.levelUpStateData != null && Accessor.levelUpStateData != null)
             { 
                 
                     __result = true;

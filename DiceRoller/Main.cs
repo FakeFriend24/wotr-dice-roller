@@ -26,6 +26,8 @@ using Kingmaker.UI.MVVM._PCView.ServiceWindows.LocalMap;
 using Kingmaker.UI.MVVM._VM.ServiceWindows.LocalMap;
 using HarmonyLib;
 using Kingmaker.EntitySystem.Stats;
+using Kingmaker.UnitLogic.Class.LevelUp;
+using Kingmaker.UnitLogic;
 
 namespace DiceRollerWotR
 {
@@ -143,6 +145,21 @@ namespace DiceRollerWotR
             else
                 return false;
         }
+
+        public static bool CheckForAllowance(LevelUpState levelupState, LevelUpState.CharBuildMode mode)
+        {
+            return Main.isActive()
+                && (levelupState.IsFirstCharacterLevel)
+                && (mode == LevelUpState.CharBuildMode.SetName
+                    
+                    || Accessor.Settings.IsLoreCompanionAllowed(levelupState.IsLoreCompanion && mode == LevelUpState.CharBuildMode.Respec)
+                    || Accessor.Settings.IsCustomCompanionAllowed(levelupState.Unit.Unit.IsCustomCompanion())
+                    || Accessor.Settings.IsPetCompanionAllowed(levelupState.Unit.Unit.IsPet)
+                    || Accessor.Settings.IsEnemyAllowed(levelupState.Unit.Unit.IsPlayersEnemy));
+
+
+        }
+
 
         private static bool searchedRespecMain = false;
         private static Type respecMain;
