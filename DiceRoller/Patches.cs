@@ -11,6 +11,7 @@ using Kingmaker.UI.MVVM._VM.CharGen.Phases.AbilityScores;
 //using Kingmaker.UI._ConsoleUI.Models;
 //using Kingmaker.UI.RestCamp;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Class.LevelUp;
 using Owlcat.Runtime.UI.MVVM;
 using System;
@@ -38,9 +39,6 @@ namespace DiceRollerWotR.Patch
             if (Main.CheckForAllowance(__instance, mode))
 
             {
-                __instance.SetPregenMode(false);
-
-
 
                 int pointCount = RolledArray.GetPointBuy();
                 __instance.StatsDistribution.Start(pointCount);
