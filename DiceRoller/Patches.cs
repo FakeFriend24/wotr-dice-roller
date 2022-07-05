@@ -32,10 +32,15 @@ namespace DiceRollerWotR.Patch
         [HarmonyPriority(Priority.VeryLow)]
         public static void _ctor(UnitEntityData unit, LevelUpState.CharBuildMode mode, bool isPregen, ref LevelUpState __instance)
         {
+#if DEBUG
+            Log.Write("Check of Values: \nChargen Mode? "+__instance.Mode+" || "+mode+"\nMain Char? "+unit.IsMainCharacter+"||"+__instance.Unit.Unit.IsMainCharacter);
+#endif
             if (Main.CheckForAllowance(__instance, mode))
 
             {
                 __instance.SetPregenMode(false);
+
+
 
                 int pointCount = RolledArray.GetPointBuy();
                 __instance.StatsDistribution.Start(pointCount);

@@ -91,7 +91,7 @@ namespace DiceRollerWotR
 
         internal static void InitializeRerollView(RectTransform transform, CharGenAbilityScoresDetailedPCView instance)
         {
-            if(RollerInstance == null)
+            if(Main.isActive() && RollerInstance == null && ((CharGenAbilityScoresVM)instance.GetViewModel()).IsPointBuyMode)
             {
                 RollerInstance = new DiceRollerUI(transform);
             }

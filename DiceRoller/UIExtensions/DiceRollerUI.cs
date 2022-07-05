@@ -42,7 +42,7 @@ namespace DiceRollerWotR
                                                      "Load", Accessor.Settings.LoadCurrentArray, "DiceRoller_LoadButton");
 
             DropdownButton = new SearchBar(RootGameObject.transform, "Type Expression ..." , Accessor.Settings.DiceExpression, "DiceRoller_RerollTypeSelector", 
-                                           Enum.GetNames(typeof(StatArrayType)), 0,
+                                           Enum.GetNames(typeof(StatArrayType)), 0, 
                                            delegate (int i) {
 #if DEBUG
                                                Log.Write("Selected is: " + i);

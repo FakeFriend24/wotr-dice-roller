@@ -56,8 +56,9 @@ namespace DiceRollerWotR
             PlaceholderText = RootGameObject.transform.Find("FieldPlace/SearchField/SearchBackImage/Placeholder/Label").GetComponent<TextMeshProUGUI>();
             InputField = RootGameObject.transform.Find("FieldPlace/SearchField/SearchBackImage/InputField").GetComponent<TMP_InputField>();
 
-            InputField.onValueChanged.AddListener(delegate (string _) { OnInputFieldEdit(); });
-            InputField.onValueChanged.AddListener(onValueChanged);
+                InputField.onValueChanged.AddListener(delegate (string _) { OnInputFieldEdit(); });
+                InputField.onValueChanged.AddListener(onValueChanged);
+
             InputField.onEndEdit.AddListener(delegate (string _) { OnInputFieldEditEnd(); });
             InputButton.OnLeftClick.AddListener(delegate { OnInputClick(); });
             if (dropDownOptions != null)
@@ -90,10 +91,12 @@ namespace DiceRollerWotR
             RootGameObject.AddComponent<LayoutElement>().flexibleWidth = 3;
 
             try { 
-            InputField.text = startValue;
+                InputField.text = startValue != null ? startValue : "";
             } catch(Exception e)
             {
+#if DEBUG
                 Log.Error(e);
+#endif
             }
         }
 

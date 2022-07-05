@@ -150,12 +150,17 @@ namespace DiceRollerWotR
         {
             return Main.isActive()
                 && (levelupState.IsFirstCharacterLevel)
-                && (mode == LevelUpState.CharBuildMode.SetName
-                    
+                && (mode == LevelUpState.CharBuildMode.CharGen 
+                    || (mode == LevelUpState.CharBuildMode.Respec 
+                        && !levelupState.IsLoreCompanion 
+                        && !levelupState.Unit.Unit.IsPet 
+                        && !levelupState.Unit.IsCustomCompanion() 
+                        && !levelupState.Unit.Unit.IsPlayersEnemy)
                     || Accessor.Settings.IsLoreCompanionAllowed(levelupState.IsLoreCompanion && mode == LevelUpState.CharBuildMode.Respec)
                     || Accessor.Settings.IsCustomCompanionAllowed(levelupState.Unit.Unit.IsCustomCompanion())
                     || Accessor.Settings.IsPetCompanionAllowed(levelupState.Unit.Unit.IsPet)
-                    || Accessor.Settings.IsEnemyAllowed(levelupState.Unit.Unit.IsPlayersEnemy));
+                    || Accessor.Settings.IsEnemyAllowed(levelupState.Unit.Unit.IsPlayersEnemy)
+                   );
 
 
         }

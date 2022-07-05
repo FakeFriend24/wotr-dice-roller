@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net472</TargetFramework> 
     <DebugType>Full</DebugType>
-	  <AssemblyVersion>0.9.*</AssemblyVersion>
+	  <AssemblyVersion>1.0.2.*</AssemblyVersion>
 	  <Deterministic>False</Deterministic>
   </PropertyGroup>
   <ItemGroup>
@@ -14,7 +14,8 @@
   <PropertyGroup>
     <WrathInstallDir Condition=" '$(WrathInstallDir)' == '' ">C:\Program Files (x86)\Steam\steamapps\common\Pathfinder Second Adventure</WrathInstallDir>
     <ModName Condition=" '$(ModName)' == '' ">DiceRollerWotR</ModName>
-  </PropertyGroup>  <PropertyGroup>
+  </PropertyGroup>  
+  <PropertyGroup>
     <PostBuildEvent>
     xcopy /y "$(SolutionDir)\bin\$(Configuration)\$(TargetFramework)\$(ModName).dll" "$(WrathInstallDir)\Mods\$(ModName)\"
     xcopy /y "$(SolutionDir)\Info.json" "$(WrathInstallDir)\Mods\$(ModName)\"

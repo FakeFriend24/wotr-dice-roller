@@ -54,18 +54,14 @@ namespace DiceRollerWotR
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             GUILayout.Label("<b><color=cyan>Current Rolled Stats: </color></b>", fixedWidth);
-#if DEBUG
-            Log.Write("GUI: Works till here");
-#endif
+
 
             for (int i = 0; i < StatTypeHelper.Attributes.Length; i++)
             {
                 GUILayout.Label("<b> #" + i + "</b>: " + RolledArray.Stats[StatTypeHelper.Attributes[i]], fixedWidth);
 
             }
-#if DEBUG
-            Log.Write("GUI: Does this Work too?");
-#endif
+
 
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
